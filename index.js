@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const port = 3001;
 
-const clients_model = require("./userModel");
+const user_model = require("./userModel");
 app.use(express.json());
 
 app.use(function (req, res, next) {
@@ -18,29 +18,36 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.get("/clients", (req, res) => {
-  clients_model
-    .getContacts()
+app.get("/clients/:id", (req, res) => {
+  user_model
+    .getContact(req.params.id)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
+app.get("/clients/:userId", (req, res) => {
+  user_model
+    .getContacts(req.params.id)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
 
 app.post("/clients", (req, res) => {
-  clients_model
+  user_model
     .createClient(req.body)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
 
 app.put("/clients/:id", (req, res) => {
-  clients_model
+  user_model
     .updateClient(req.params.id, req.body)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
 
 app.delete("/clients/:id", (req, res) => {
-  clients_model
+  user_model
     .deleteClient(req.params.id)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
