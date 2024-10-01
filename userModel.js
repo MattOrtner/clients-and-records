@@ -8,22 +8,23 @@ const pool = new Pool({
   port: process.env.PORT,
 });
 
-const getContact = async ({ id }) => {
-  console.log("id:", id);
+const getClient = async (req) => {
   try {
     return await new Promise(function (resolve, reject) {
-      pool.query(`SELECT * FROM clients WHERE id=${id}`, (error, results) => {
-        if (error) {
-          console.error("error", error);
-          reject(error);
+      pool.query(
+        `SELECT * FROM clients WHERE id=${req.params.clientId} AND user_id=${req.params.userId}`,
+        (error, results) => {
+          if (error) {
+            console.error("error", error);
+            reject(error);
+          }
+          if (results && results.rows) {
+            resolve(results.rows);
+          } else {
+            reject(new Error("No results found"));
+          }
         }
-        if (results && results.rows) {
-          console.log("got results");
-          resolve(results.rows);
-        } else {
-          reject(new Error("No results found"));
-        }
-      });
+      );
     });
   } catch (error_1) {
     console.error(error_1);
@@ -31,11 +32,11 @@ const getContact = async ({ id }) => {
   }
 };
 
-const getContacts = async (userId) => {
+const getClients = async (req) => {
   try {
     return await new Promise(function (resolve, reject) {
       pool.query(
-        `SELECT first,last,id FROM clients WHERE user_id=${userId}`,
+        `SELECT first,last,id FROM clients WHERE user_id=${req.params.userId}`,
         (error, results) => {
           if (error) {
             console.error("error", error);
@@ -55,13 +56,15 @@ const getContacts = async (userId) => {
   }
 };
 //create a new client record in the databsse
-const createContact = (body) => {
-  return new deleteContact(function (resolve, reject) {
-    const { first, lontactemail, rate, occurrence, phonenumber } = body;
+const createClient = (userId, body) => {
+  console.log("userId: ", userId);
+  console.log("body: ", body);
 
+  return new Promise(function (resolve, reject) {
+    const { first, last, email, rate, occurrence, phonenumber } = body;
     pool.query(
-      "INSERT INTO clients (first, last, email, rate, occurrence, phonenumber) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [first, last, email, rate, occurrence, phonenumber],
+      "INSERT INTO clients (first, last, email, rate, occurrence, phone_number, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+      [first, last, email, rate, occurrence, phonenumber, userId],
       (error, results) => {
         if (error) {
           console.log("error createClientAPI: ", error);
@@ -79,40 +82,56 @@ const createContact = (body) => {
   });
 };
 //delete a client
-const deleteContact = (id) => {
+const deleteClient = (params) => {
+  const { userId, clientId } = params;
   return new Promise(function (resolve, reject) {
-    pool.query("DELETE FROM clients WHERE id = $1", [id], (error, results) => {
-      if (error) {
-        reject(error);
-      }
-      resolve(`Client deleted with ID: ${id}`);
-    });
-  });
-};
-//update a client record
-const updateContact = (id, body) => {
-  return new Promise(function (resolve, reject) {
-    const { name, email } = body;
     pool.query(
-      "UPDATE clients SET name = $1, email = $2 WHERE id = $3 RETURNING *",
-      [name, email, id],
+      `DELETE FROM clients WHERE id = ${clientId} AND user_id = ${userId}`,
       (error, results) => {
         if (error) {
           reject(error);
         }
-        if (results && results.rows) {
-          resolve(`Client updated: ${JSON.stringify(results.rows[0])}`);
-        } else {
-          reject(new Error("No results found"));
-        }
+        resolve(`Client deleted with ID: ${clientId}`);
       }
     );
   });
 };
+
+//update a client record
+const updateClient = (params, body) => {
+  const fields = [];
+  const values = [];
+  const clientId = params.clientId;
+  const userId = params.userId;
+  let query = "UPDATE clients SET ";
+
+  for (let key in body) {
+    fields.push(`${key} = $${values.length + 1}`);
+    values.push(body[key]);
+  }
+
+  query +=
+    fields.join(", ") +
+    `WHERE id = ${clientId} AND user_id = ${userId} RETURNING *`;
+
+  return new Promise(function (resolve, reject) {
+    pool.query(query, values, (error, results) => {
+      if (error) {
+        reject(error);
+      }
+      if (results && results.rows) {
+        resolve(`Client updated: ${JSON.stringify(results.rows[0])}`);
+      } else {
+        reject(new Error("No results found"));
+      }
+    });
+  });
+};
+
 module.exports = {
-  getContact,
-  getContacts,
-  createContact,
-  deleteContact,
-  updateContact,
+  getClient,
+  getClients,
+  createClient,
+  deleteClient,
+  updateClient,
 };

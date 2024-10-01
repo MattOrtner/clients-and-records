@@ -18,37 +18,37 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.get("/clients/:id", (req, res) => {
+app.get("/:userId/clients/:clientId", (req, res) => {
   user_model
-    .getContact(req.params.id)
+    .getClient(req)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
 
-app.get("/clients/:userId", (req, res) => {
+app.get("/:userId/clients", (req, res) => {
   user_model
-    .getContacts(req.params.id)
+    .getClients(req)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
 
-app.post("/clients", (req, res) => {
+app.post("/:userId/clients", (req, res) => {
   user_model
-    .createClient(req.body)
+    .createClient(req.params.userId, req.body)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
 
-app.put("/clients/:id", (req, res) => {
+app.put("/:userId/clients/:clientId", (req, res) => {
   user_model
-    .updateClient(req.params.id, req.body)
+    .updateClient(req.params, req.body)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
 
-app.delete("/clients/:id", (req, res) => {
+app.delete("/:userId/clients/:clientId", (req, res) => {
   user_model
-    .deleteClient(req.params.id)
+    .deleteClient(req.params)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
