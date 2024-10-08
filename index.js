@@ -3,6 +3,7 @@ const app = express();
 const port = 3001;
 
 const user_model = require("./userModel");
+const session_model = require("./sessionModel");
 app.use(express.json());
 
 app.use(function (req, res, next) {
@@ -35,6 +36,13 @@ app.get("/:userId/clients", (req, res) => {
 app.post("/:userId/clients", (req, res) => {
   user_model
     .createClient(req.params.userId, req.body)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
+app.post("/:userId/clients/:clientId/createSession", (req, res) => {
+  session_model
+    .createSession(req.params.clientId, req.body)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
