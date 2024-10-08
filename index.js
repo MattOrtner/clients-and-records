@@ -19,6 +19,8 @@ app.use(function (req, res, next) {
   next();
 });
 
+// USER ROUTES
+
 app.get("/:userId/clients/:clientId", (req, res) => {
   user_model
     .getClient(req)
@@ -54,6 +56,8 @@ app.delete("/:userId/clients/:clientId", (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
+// SESSION ROUTES
+
 app.post("/:userId/clients/:clientId/createSession", (req, res) => {
   session_model
     .createSession(req.params.clientId, req.body)
@@ -71,6 +75,20 @@ app.get("/:userId/clients/:clientId/sessions", (req, res) => {
 app.get("/:userId/clients/:clientId/sessions/:sessionId", (req, res) => {
   session_model
     .getSession(req.params.sessionId)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
+app.delete("/:userId/clients/:clientId/sessions/:sessionId", (req, res) => {
+  session_model
+    .deleteSession(req.params.sessionId)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
+app.put("/:userId/clients/:clientId/sessions/:sessionId", (req, res) => {
+  session_model
+    .updateSession(req.params.sessionId, req.body)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });

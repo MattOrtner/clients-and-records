@@ -79,36 +79,33 @@ const createSession = (clientId, body) => {
   });
 };
 
-const deleteClient = (params) => {
-  const { userId, clientId } = params;
+const deleteSession = (sessionId) => {
   return new Promise(function (resolve, reject) {
     pool.query(
-      `DELETE FROM clients WHERE id = ${clientId} AND user_id = ${userId}`,
+      `DELETE FROM sessions WHERE id = ${sessionId}`,
       (error, results) => {
         if (error) {
           reject(error);
         }
-        resolve(`Client deleted with ID: ${clientId}`);
+        resolve(`Client deleted with ID: ${sessionId}`);
       }
     );
   });
 };
 
-const updateClient = (params, body) => {
+const updateSession = (sessionId, body) => {
+  console.log("sessionId: ", sessionId);
+  console.log("body: ", body);
   const fields = [];
   const values = [];
-  const clientId = params.clientId;
-  const userId = params.userId;
-  let query = "UPDATE clients SET ";
+  let query = "UPDATE sessions SET ";
 
   for (let key in body) {
     fields.push(`${key} = $${values.length + 1}`);
     values.push(body[key]);
   }
 
-  query +=
-    fields.join(", ") +
-    `WHERE id = ${clientId} AND user_id = ${userId} RETURNING *`;
+  query += fields.join(", ") + `WHERE id = ${sessionId} RETURNING *`;
 
   return new Promise(function (resolve, reject) {
     pool.query(query, values, (error, results) => {
@@ -116,7 +113,7 @@ const updateClient = (params, body) => {
         reject(error);
       }
       if (results && results.rows) {
-        resolve(`Client updated: ${JSON.stringify(results.rows[0])}`);
+        resolve(`Session updated: ${JSON.stringify(results.rows[0])}`);
       } else {
         reject(new Error("No results found"));
       }
@@ -128,6 +125,6 @@ module.exports = {
   getSession,
   getClientSessions,
   createSession,
-  deleteClient,
-  updateClient,
+  deleteSession,
+  updateSession,
 };
