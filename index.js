@@ -68,6 +68,13 @@ app.get("/:userId/clients/:clientId/sessions", (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
+app.get("/:userId/clients/:clientId/sessions/:sessionId", (req, res) => {
+  session_model
+    .getSession(req.params.sessionId)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
 app.listen(port, () => {
   console.log(`App running on port ${port}.`);
 });

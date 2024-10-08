@@ -8,11 +8,11 @@ const pool = new Pool({
   port: process.env.PORT,
 });
 
-const getClient = async (req) => {
+const getSession = async (sessionId) => {
   try {
     return await new Promise(function (resolve, reject) {
       pool.query(
-        `SELECT * FROM clients WHERE id=${req.params.clientId} AND user_id=${req.params.userId}`,
+        `SELECT * FROM sessions WHERE id=${sessionId}`,
         (error, results) => {
           if (error) {
             console.error("error", error);
@@ -55,7 +55,7 @@ const getClientSessions = async (clientId) => {
     throw new Error("Internal server error");
   }
 };
-//create a new session record in the databsse
+
 const createSession = (clientId, body) => {
   return new Promise(function (resolve, reject) {
     const { notes, session_date, paid } = body;
@@ -78,7 +78,7 @@ const createSession = (clientId, body) => {
     );
   });
 };
-//delete a session
+
 const deleteClient = (params) => {
   const { userId, clientId } = params;
   return new Promise(function (resolve, reject) {
@@ -94,7 +94,6 @@ const deleteClient = (params) => {
   });
 };
 
-//update a session record
 const updateClient = (params, body) => {
   const fields = [];
   const values = [];
@@ -126,7 +125,7 @@ const updateClient = (params, body) => {
 };
 
 module.exports = {
-  getClient,
+  getSession,
   getClientSessions,
   createSession,
   deleteClient,
