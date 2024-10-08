@@ -32,11 +32,11 @@ const getClient = async (req) => {
   }
 };
 
-const getClients = async (req) => {
+const getClientSessions = async (clientId) => {
   try {
     return await new Promise(function (resolve, reject) {
       pool.query(
-        `SELECT first,last,id FROM clients WHERE user_id=${req.params.userId}`,
+        `SELECT * FROM sessions WHERE client_id=${clientId}`,
         (error, results) => {
           if (error) {
             console.error("error", error);
@@ -57,9 +57,6 @@ const getClients = async (req) => {
 };
 //create a new session record in the databsse
 const createSession = (clientId, body) => {
-  console.log("clientId: ", clientId);
-  console.log("body: ", body);
-
   return new Promise(function (resolve, reject) {
     const { notes, session_date, paid } = body;
     pool.query(
@@ -130,7 +127,7 @@ const updateClient = (params, body) => {
 
 module.exports = {
   getClient,
-  getClients,
+  getClientSessions,
   createSession,
   deleteClient,
   updateClient,

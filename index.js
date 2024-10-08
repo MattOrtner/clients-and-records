@@ -40,13 +40,6 @@ app.post("/:userId/clients", (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
-app.post("/:userId/clients/:clientId/createSession", (req, res) => {
-  session_model
-    .createSession(req.params.clientId, req.body)
-    .then((response) => res.status(200).send(response))
-    .catch((error) => res.status(500).send(error));
-});
-
 app.put("/:userId/clients/:clientId", (req, res) => {
   user_model
     .updateClient(req.params, req.body)
@@ -57,6 +50,20 @@ app.put("/:userId/clients/:clientId", (req, res) => {
 app.delete("/:userId/clients/:clientId", (req, res) => {
   user_model
     .deleteClient(req.params)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
+app.post("/:userId/clients/:clientId/createSession", (req, res) => {
+  session_model
+    .createSession(req.params.clientId, req.body)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
+app.get("/:userId/clients/:clientId/sessions", (req, res) => {
+  session_model
+    .getClientSessions(req.params.clientId)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
