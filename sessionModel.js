@@ -87,7 +87,7 @@ const deleteSession = (sessionId) => {
         if (error) {
           reject(error);
         }
-        resolve(`Client deleted with ID: ${sessionId}`);
+        resolve(`Session deleted with ID: ${sessionId}`);
       }
     );
   });

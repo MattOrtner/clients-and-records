@@ -5,13 +5,9 @@ const port = 3001;
 const user_model = require("./userModel");
 const session_model = require("./sessionModel");
 app.use(express.json());
-
 app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", `*`);
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.setHeader(
     "Access-Control-Allow-Headers",
     "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
@@ -20,6 +16,13 @@ app.use(function (req, res, next) {
 });
 
 // USER ROUTES
+
+app.post("/login", (req, res) => {
+  user_model
+    .signInUser(req)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
 
 app.get("/:userId/clients/:clientId", (req, res) => {
   user_model

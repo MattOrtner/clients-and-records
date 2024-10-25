@@ -8,11 +8,41 @@ const pool = new Pool({
   port: process.env.PORT,
 });
 
+const signInUser = async (req) => {
+  try {
+    return await new Promise(function (resolve, reject) {
+      pool.query(
+        `SELECT email, password FROM users WHERE email = '${req.body.email}';`,
+        (error, results) => {
+          if (error) {
+            console.error("error signInUser: ", error);
+            reject(error);
+          }
+          if (results) {
+            // REQUESTS FOR LANDING PAGE
+            // request for id
+            // request for tasks
+            // return { all request data }
+            console.log("results: ", results);
+            resolve({ id: 2 });
+            // resolve(results.rows);
+          } else {
+            reject(new Error("No results found"));
+          }
+        }
+      );
+    });
+  } catch (error_1) {
+    console.error(error_1);
+    throw new Error("Internal server error");
+  }
+};
+
 const getClient = async (req) => {
   try {
     return await new Promise(function (resolve, reject) {
       pool.query(
-        `SELECT * FROM clients WHERE id=${req.params.clientId} AND user_id=${req.params.userId}`,
+        `SELECT * FROM clients WHERE id=${req.params.clientId}`,
         (error, results) => {
           if (error) {
             console.error("error", error);
@@ -129,6 +159,7 @@ const updateClient = (params, body) => {
 };
 
 module.exports = {
+  signInUser,
   getClient,
   getClients,
   createClient,
