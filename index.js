@@ -4,6 +4,8 @@ const port = 3001;
 
 const user_model = require("./userModel");
 const session_model = require("./sessionModel");
+const todos_model = require("./todosModel");
+
 app.use(express.json());
 app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -16,7 +18,6 @@ app.use(function (req, res, next) {
 });
 
 // USER ROUTES
-
 app.post("/login", (req, res) => {
   user_model
     .signInUser(req)
@@ -24,6 +25,22 @@ app.post("/login", (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
+// TODOS ROUTES
+app.get("/:userId/todos", (req, res) => {
+  todos_model
+    .getTodos(req)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
+app.post("/todos", (req, res) => {
+  todos_model
+    .createTodo(req)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
+// CLIENT ROUTES
 app.get("/:userId/clients/:clientId", (req, res) => {
   user_model
     .getClient(req)

@@ -9,23 +9,19 @@ const pool = new Pool({
 });
 
 const signInUser = async (req) => {
+  const { email, pass } = req.body;
   try {
     return await new Promise(function (resolve, reject) {
       pool.query(
-        `SELECT email, password FROM users WHERE email = '${req.body.email}';`,
+        `SELECT email, password, id, first FROM users WHERE email = '${email}';`,
         (error, results) => {
           if (error) {
-            console.error("error signInUser: ", error);
+            console.error("loginQuery callback: ", error);
             reject(error);
           }
-          if (results) {
-            // REQUESTS FOR LANDING PAGE
-            // request for id
-            // request for tasks
-            // return { all request data }
-            console.log("results: ", results);
-            resolve({ id: 2 });
-            // resolve(results.rows);
+          const response = results.rows[0];
+          if (response.password === pass) {
+            resolve({ status: 200, id: response.id, first: response.first });
           } else {
             reject(new Error("No results found"));
           }
@@ -34,7 +30,7 @@ const signInUser = async (req) => {
     });
   } catch (error_1) {
     console.error(error_1);
-    throw new Error("Internal server error");
+    throw new Error("Internal server error_1");
   }
 };
 
@@ -87,9 +83,6 @@ const getClients = async (req) => {
 };
 //create a new client record in the databsse
 const createClient = (userId, body) => {
-  console.log("userId: ", userId);
-  console.log("body: ", body);
-
   return new Promise(function (resolve, reject) {
     const { first, last, email, rate, occurrence, phonenumber } = body;
     pool.query(
