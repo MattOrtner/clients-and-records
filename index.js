@@ -1,11 +1,13 @@
 const express = require("express");
 const app = express();
 const port = 3001;
+const cors = require("cors");
 
 const user_model = require("./userModel");
 const session_model = require("./sessionModel");
 const todos_model = require("./todosModel");
 
+app.use(cors());
 app.use(express.json());
 app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -36,6 +38,13 @@ app.get("/:userId/todos", (req, res) => {
 app.post("/todos", (req, res) => {
   todos_model
     .createTodo(req)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
+app.delete("/todos", (req, res) => {
+  todos_model
+    .deleteTodo(req)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });

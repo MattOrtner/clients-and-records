@@ -10,51 +10,54 @@ const pool = new Pool({
 
 const getTodos = async (req) => {
   try {
-    return await new Promise(function (resolve, reject) {
-      pool.query(
-        `SELECT * from todos WHERE user_id = ${req.params.userId}`,
-        (error, results) => {
-          if (error) {
-            console.error("error", error);
-            reject(error);
-          }
-          if (results && results.rows) {
-            resolve(results.rows);
-          } else {
-            reject(new Error("No results found"));
-          }
-        }
-      );
-    });
+    const results = await pool.query("SELECT * from todos WHERE user_id = $1", [
+      req.params.userId,
+    ]);
+    if (results && results.rows) {
+      return results.rows;
+    } else {
+      throw new Error("No todos found for the given user ID");
+    }
   } catch (error) {
     throw new Error("getTodos error internal server error");
   }
 };
 
-const createTodo = (req) => {
-  return new Promise(function (resolve, reject) {
+const createTodo = async (req) => {
+  try {
     const { id, content, index, userId } = req.body;
-    pool.query(
+    const results = await pool.query(
       "INSERT INTO todos( content, id, user_id, index) VALUES ($1, $2, $3, $4) RETURNING *",
-      [content, id, userId, index],
-      (error, results) => {
-        if (error) {
-          console.log("error createTodo: ", error);
-          reject(error);
-        }
-        if (results && results.rows) {
-          resolve(
-            `A new todo has been added: ${JSON.stringify(results.rows[0])}`
-          );
-        } else {
-          reject(new Error("No results found"));
-        }
-      }
+      [content, id, userId, index]
     );
-  });
+    if (results && results.rows) {
+      return results.rows[0];
+    } else {
+      throw new Error("Failed to create todo");
+    }
+  } catch (error) {
+    console.error("error", error);
+    throw new Error("Internal server error");
+  }
+};
+
+const deleteTodo = async (req) => {
+  const { id } = req.body;
+  try {
+    const results = await pool.query("DELETE FROM todos WHERE id = $1", [id]);
+    if (results && results.rowCount > 0) {
+      return `Todo with id ${id} has been deleted`;
+    } else {
+      throw new Error("No results found");
+    }
+  } catch (error) {
+    console.error("error deleteTodo: ", error);
+    throw error;
+  }
 };
 
 module.exports = {
   getTodos,
   createTodo,
+  deleteTodo,
 };
