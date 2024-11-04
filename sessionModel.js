@@ -8,37 +8,11 @@ const pool = new Pool({
   port: process.env.PORT,
 });
 
-const signInUser = async (req) => {
-  const { email, pass } = req.body;
+const getSession = async (sessionId) => {
   try {
     return await new Promise(function (resolve, reject) {
       pool.query(
-        `SELECT email, password, id, first FROM users WHERE email = '${email}';`,
-        (error, results) => {
-          if (error) {
-            console.error("loginQuery callback: ", error);
-            reject(error);
-          }
-          const response = results.rows[0];
-          if (response.password === pass) {
-            resolve({ status: 200, id: response.id, first: response.first });
-          } else {
-            reject(new Error("No results found"));
-          }
-        }
-      );
-    });
-  } catch (error_1) {
-    console.error(error_1);
-    throw new Error("Internal server error_1");
-  }
-};
-
-const getClient = async (req) => {
-  try {
-    return await new Promise(function (resolve, reject) {
-      pool.query(
-        `SELECT * FROM clients WHERE id=${req.params.clientId}`,
+        `SELECT * FROM sessions WHERE id=${sessionId}`,
         (error, results) => {
           if (error) {
             console.error("error", error);
@@ -58,11 +32,11 @@ const getClient = async (req) => {
   }
 };
 
-const getClients = async (req) => {
+const getClientSessions = async (clientId) => {
   try {
     return await new Promise(function (resolve, reject) {
       pool.query(
-        `SELECT first,last,id FROM clients WHERE user_id=${req.params.userId}`,
+        `SELECT * FROM sessions WHERE client_id=${clientId}`,
         (error, results) => {
           if (error) {
             console.error("error", error);
@@ -81,13 +55,13 @@ const getClients = async (req) => {
     throw new Error("Internal server error");
   }
 };
-//create a new client record in the databsse
-const createClient = (userId, body) => {
+
+const createSession = (clientId, body) => {
   return new Promise(function (resolve, reject) {
-    const { first, last, email, rate, occurrence, phonenumber } = body;
+    const { notes, session_date, paid } = body;
     pool.query(
-      "INSERT INTO clients (first, last, email, rate, occurrence, phone_number, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [first, last, email, rate, occurrence, phonenumber, userId],
+      "INSERT INTO sessions (client_id, notes, session_date, paid) VALUES ($1, $2, $3, $4) RETURNING *",
+      [clientId, notes, session_date, paid],
       (error, results) => {
         if (error) {
           console.log("error createClientAPI: ", error);
@@ -95,7 +69,7 @@ const createClient = (userId, body) => {
         }
         if (results && results.rows) {
           resolve(
-            `A new client has been added: ${JSON.stringify(results.rows[0])}`
+            `A new session has been added: ${JSON.stringify(results.rows[0])}`
           );
         } else {
           reject(new Error("No results found"));
@@ -104,38 +78,34 @@ const createClient = (userId, body) => {
     );
   });
 };
-//delete a client
-const deleteClient = (params) => {
-  const { userId, clientId } = params;
+
+const deleteSession = (sessionId) => {
   return new Promise(function (resolve, reject) {
     pool.query(
-      `DELETE FROM clients WHERE id = ${clientId} AND user_id = ${userId}`,
+      `DELETE FROM sessions WHERE id = ${sessionId}`,
       (error, results) => {
         if (error) {
           reject(error);
         }
-        resolve(`Client deleted with ID: ${clientId}`);
+        resolve(`Session deleted with ID: ${sessionId}`);
       }
     );
   });
 };
 
-//update a client record
-const updateClient = (params, body) => {
+const updateSession = (sessionId, body) => {
+  console.log("sessionId: ", sessionId);
+  console.log("body: ", body);
   const fields = [];
   const values = [];
-  const clientId = params.clientId;
-  const userId = params.userId;
-  let query = "UPDATE clients SET ";
+  let query = "UPDATE sessions SET ";
 
   for (let key in body) {
     fields.push(`${key} = $${values.length + 1}`);
     values.push(body[key]);
   }
 
-  query +=
-    fields.join(", ") +
-    `WHERE id = ${clientId} AND user_id = ${userId} RETURNING *`;
+  query += fields.join(", ") + `WHERE id = ${sessionId} RETURNING *`;
 
   return new Promise(function (resolve, reject) {
     pool.query(query, values, (error, results) => {
@@ -143,7 +113,7 @@ const updateClient = (params, body) => {
         reject(error);
       }
       if (results && results.rows) {
-        resolve(`Client updated: ${JSON.stringify(results.rows[0])}`);
+        resolve(`Session updated: ${JSON.stringify(results.rows[0])}`);
       } else {
         reject(new Error("No results found"));
       }
@@ -152,10 +122,9 @@ const updateClient = (params, body) => {
 };
 
 module.exports = {
-  signInUser,
-  getClient,
-  getClients,
-  createClient,
-  deleteClient,
-  updateClient,
+  getSession,
+  getClientSessions,
+  createSession,
+  deleteSession,
+  updateSession,
 };
