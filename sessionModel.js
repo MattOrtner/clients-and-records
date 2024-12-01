@@ -69,19 +69,17 @@ const getClientSessions = async ({ userId, clientId }) => {
 
 const createSession = (clientId, body) => {
   return new Promise(function (resolve, reject) {
-    const { notes, session_date, paid } = body;
+    const { date, time, paid } = body;
     pool.query(
-      "INSERT INTO sessions (client_id, notes, session_date, paid) VALUES ($1, $2, $3, $4) RETURNING *",
-      [clientId, notes, session_date, paid],
+      "INSERT INTO sessions (client_id, date, time, paid) VALUES ($1, $2, $3, $4) RETURNING *",
+      [clientId, date, time, paid],
       (error, results) => {
         if (error) {
           console.log("error createClientAPI: ", error);
           reject(error);
         }
         if (results && results.rows) {
-          resolve(
-            `A new session has been added: ${JSON.stringify(results.rows[0])}`
-          );
+          resolve(results.rows);
         } else {
           reject(new Error("No results found"));
         }
