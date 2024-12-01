@@ -87,7 +87,7 @@ app.delete("/:userId/clients/:clientId", (req, res) => {
 
 // SESSION ROUTES
 
-app.post("/:userId/clients/:clientId/createSession", (req, res) => {
+app.post("/sessions/create-session/:clientId", (req, res) => {
   session_model
     .createSession(req.params.clientId, req.body)
     .then((response) => res.status(200).send(response))
