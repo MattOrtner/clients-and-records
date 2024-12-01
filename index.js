@@ -50,7 +50,7 @@ app.delete("/todos", (req, res) => {
 });
 
 // CLIENT ROUTES
-app.get("/:userId/clients/:clientId", (req, res) => {
+app.get("/clients/:clientId", (req, res) => {
   user_model
     .getClient(req)
     .then((response) => res.status(200).send(response))
@@ -94,9 +94,9 @@ app.post("/:userId/clients/:clientId/createSession", (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
-app.get("/:userId/clients/:clientId/sessions", (req, res) => {
+app.get("/:userId/clients/sessions/:clientId", (req, res) => {
   session_model
-    .getClientSessions(req.params.clientId)
+    .getClientSessions(req.params)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });

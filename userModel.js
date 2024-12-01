@@ -13,7 +13,8 @@ const signInUser = async (req) => {
   try {
     return await new Promise(function (resolve, reject) {
       pool.query(
-        `SELECT email, password, id, first FROM users WHERE email = '${email}';`,
+        "SELECT email, password, id, first FROM users WHERE email = $1;",
+        [email],
         (error, results) => {
           if (error) {
             console.error("loginQuery callback: ", error);
@@ -38,7 +39,8 @@ const getClient = async (req) => {
   try {
     return await new Promise(function (resolve, reject) {
       pool.query(
-        `SELECT * FROM clients WHERE id=${req.params.clientId}`,
+        "SELECT first, last, email, phone_number, id FROM clients WHERE id = $1",
+        [req.params.clientId],
         (error, results) => {
           if (error) {
             console.error("error", error);
@@ -94,9 +96,12 @@ const createClient = (userId, body) => {
           reject(error);
         }
         if (results && results.rows) {
-          resolve(
-            `A new client has been added: ${JSON.stringify(results.rows[0])}`
-          );
+          // resolve(
+          //   `A new client has been added: ${JSON.stringify(results.rows[0])}`
+          // );
+          // console.log("results.rows[0]: ", results.rows[0]);
+          // return results.rows[0];
+          resolve(results.rows[0]);
         } else {
           reject(new Error("No results found"));
         }
@@ -109,7 +114,8 @@ const deleteClient = (params) => {
   const { userId, clientId } = params;
   return new Promise(function (resolve, reject) {
     pool.query(
-      `DELETE FROM clients WHERE id = ${clientId} AND user_id = ${userId}`,
+      "DELETE FROM clients WHERE id = $1 AND user_id = $2",
+      [clientId, userId],
       (error, results) => {
         if (error) {
           reject(error);

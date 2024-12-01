@@ -12,7 +12,8 @@ const getSession = async (sessionId) => {
   try {
     return await new Promise(function (resolve, reject) {
       pool.query(
-        `SELECT * FROM sessions WHERE id=${sessionId}`,
+        "SELECT * FROM sessions WHERE id=$1",
+        [sessionId],
         (error, results) => {
           if (error) {
             console.error("error", error);
@@ -32,11 +33,21 @@ const getSession = async (sessionId) => {
   }
 };
 
-const getClientSessions = async (clientId) => {
+const getClientSessions = async ({ userId, clientId }) => {
   try {
+    // CONFIRM CLIENT BELONGS TO USER
+    // const user = await new Promise(function (resolve, reject) {
+    //   pool.query(`SELECT user_id FROM clients WHERE id=${clientId}`);
+    // });
+    // console.log("user", user);
+    // if (user[0].id !== userId) {
+    //   throw new Error("Client does not belong to user");
+    // }
+    // console.log("client", client);
     return await new Promise(function (resolve, reject) {
       pool.query(
-        `SELECT * FROM sessions WHERE client_id=${clientId}`,
+        "SELECT * FROM sessions WHERE client_id=$1",
+        [clientId],
         (error, results) => {
           if (error) {
             console.error("error", error);
@@ -82,7 +93,8 @@ const createSession = (clientId, body) => {
 const deleteSession = (sessionId) => {
   return new Promise(function (resolve, reject) {
     pool.query(
-      `DELETE FROM sessions WHERE id = ${sessionId}`,
+      "DELETE FROM sessions WHERE id = $1",
+      [sessionId],
       (error, results) => {
         if (error) {
           reject(error);
@@ -94,8 +106,6 @@ const deleteSession = (sessionId) => {
 };
 
 const updateSession = (sessionId, body) => {
-  console.log("sessionId: ", sessionId);
-  console.log("body: ", body);
   const fields = [];
   const values = [];
   let query = "UPDATE sessions SET ";
@@ -105,7 +115,8 @@ const updateSession = (sessionId, body) => {
     values.push(body[key]);
   }
 
-  query += fields.join(", ") + `WHERE id = ${sessionId} RETURNING *`;
+  query += fields.join(", ") + " WHERE id = $1 RETURNING *";
+  values.push(sessionId);
 
   return new Promise(function (resolve, reject) {
     pool.query(query, values, (error, results) => {
