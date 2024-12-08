@@ -115,7 +115,7 @@ app.delete("/:userId/clients/:clientId/sessions/:sessionId", (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
-app.put("/:userId/clients/:clientId/sessions/:sessionId", (req, res) => {
+app.put("/:clientId/sessions/:sessionId", (req, res) => {
   session_model
     .updateSession(req.params.sessionId, req.body)
     .then((response) => res.status(200).send(response))
