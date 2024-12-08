@@ -104,8 +104,9 @@ const deleteSession = (sessionId) => {
 };
 
 const updateSession = (sessionId, body) => {
-  const fields = [];
+  console.log("body", body);
   const values = [];
+  const fields = [];
   let query = "UPDATE sessions SET ";
 
   for (let key in body) {
@@ -113,7 +114,7 @@ const updateSession = (sessionId, body) => {
     values.push(body[key]);
   }
 
-  query += fields.join(", ") + " WHERE id = $1 RETURNING *";
+  query += fields.join(", ") + ` WHERE id = $${values.length + 1} RETURNING *`;
   values.push(sessionId);
 
   return new Promise(function (resolve, reject) {
