@@ -60,6 +60,32 @@ const getClient = async (req) => {
   }
 };
 
+const getClientProfile = async (req) => {
+  const { clientId } = req.params;
+  try {
+    return await new Promise(function (resolve, reject) {
+      pool.query(
+        "SELECT first, last, email, phone_number, rate FROM clients WHERE id = $1",
+        [clientId],
+        (error, results) => {
+          if (error) {
+            console.error("error", error);
+            reject(error);
+          }
+          if (results && results.rows) {
+            resolve(results.rows);
+          } else {
+            reject(new Error("No results found"));
+          }
+        }
+      );
+    });
+  } catch (error_1) {
+    console.error(error_1);
+    throw new Error("Internal server error");
+  }
+};
+
 const getClients = async (req) => {
   try {
     return await new Promise(function (resolve, reject) {
@@ -160,6 +186,7 @@ const updateClient = (params, body) => {
 module.exports = {
   signInUser,
   getClient,
+  getClientProfile,
   getClients,
   createClient,
   deleteClient,

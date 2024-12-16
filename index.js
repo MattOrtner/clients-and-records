@@ -57,6 +57,13 @@ app.get("/clients/:clientId", (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
+app.get("/clients/:clientId/profile", (req, res) => {
+  user_model
+    .getClientProfile(req)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
 app.get("/:userId/clients", (req, res) => {
   user_model
     .getClients(req)
