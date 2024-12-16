@@ -104,7 +104,6 @@ const deleteSession = (sessionId) => {
 };
 
 const updateSession = (sessionId, body) => {
-  console.log("body", body);
   const values = [];
   const fields = [];
   let query = "UPDATE sessions SET ";
