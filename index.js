@@ -108,7 +108,7 @@ app.get("/:userId/clients/:clientId/sessions/:sessionId", (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
-app.delete("/:userId/clients/:clientId/sessions/:sessionId", (req, res) => {
+app.delete("/:clientId/sessions/:sessionId", (req, res) => {
   session_model
     .deleteSession(req.params.sessionId)
     .then((response) => res.status(200).send(response))
