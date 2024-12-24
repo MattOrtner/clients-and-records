@@ -137,6 +137,7 @@ const createClient = (userId, body) => {
 };
 //delete a client
 const deleteClient = (params) => {
+  console.log("deleteClient server");
   const { userId, clientId } = params;
   return new Promise(function (resolve, reject) {
     pool.query(
