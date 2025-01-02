@@ -5,7 +5,7 @@ const cors = require("cors");
 
 const user_model = require("./userModel");
 const session_model = require("./sessionModel");
-const todos_model = require("./todosModel");
+const task_model = require("./taskModel");
 
 app.use(cors());
 app.use(express.json());
@@ -28,23 +28,23 @@ app.post("/login", (req, res) => {
 });
 
 // TODOS ROUTES
-app.get("/:userId/todos", (req, res) => {
-  todos_model
-    .getTodos(req)
+app.get("/:userId/tasks", (req, res) => {
+  task_model
+    .getTasks(req)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
 
-app.post("/todos", (req, res) => {
-  todos_model
-    .createTodo(req)
+app.post("/tasks", (req, res) => {
+  task_model
+    .createTask(req)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
 
-app.delete("/todos", (req, res) => {
-  todos_model
-    .deleteTodo(req)
+app.delete("/tasks", (req, res) => {
+  task_model
+    .deleteTask(req)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });

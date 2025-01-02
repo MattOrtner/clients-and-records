@@ -8,26 +8,27 @@ const pool = new Pool({
   port: process.env.PORT,
 });
 
-const getTodos = async (req) => {
+const getTasks = async (req) => {
   try {
-    const results = await pool.query("SELECT * from todos WHERE user_id = $1", [
+    const results = await pool.query("SELECT * from tasks WHERE user_id = $1", [
       req.params.userId,
     ]);
     if (results && results.rows) {
       return results.rows;
     } else {
-      throw new Error("No todos found for the given user ID");
+      throw new Error("No tasks found for the given user ID");
     }
   } catch (error) {
+    console.error("error", error);
     throw new Error("getTodos error internal server error");
   }
 };
 
-const createTodo = async (req) => {
+const createTask = async (req) => {
   try {
     const { id, content, index, userId } = req.body;
     const results = await pool.query(
-      "INSERT INTO todos( content, id, user_id, index) VALUES ($1, $2, $3, $4) RETURNING *",
+      "INSERT INTO tasks( content, id, user_id, index) VALUES ($1, $2, $3, $4) RETURNING *",
       [content, id, userId, index]
     );
     if (results && results.rows) {
@@ -41,10 +42,10 @@ const createTodo = async (req) => {
   }
 };
 
-const deleteTodo = async (req) => {
+const deleteTask = async (req) => {
   const { id } = req.body;
   try {
-    const results = await pool.query("DELETE FROM todos WHERE id = $1", [id]);
+    const results = await pool.query("DELETE FROM tasks WHERE id = $1", [id]);
     if (results && results.rowCount > 0) {
       return `Todo with id ${id} has been deleted`;
     } else {
@@ -57,7 +58,7 @@ const deleteTodo = async (req) => {
 };
 
 module.exports = {
-  getTodos,
-  createTodo,
-  deleteTodo,
+  getTasks,
+  createTask,
+  deleteTask,
 };
