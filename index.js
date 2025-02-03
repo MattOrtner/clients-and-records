@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const port = 3001;
 const cors = require("cors");
+require("dotenv").config();
 
 const user_model = require("./userModel");
 const session_model = require("./sessionModel");
