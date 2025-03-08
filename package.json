@@ -1,7 +1,7 @@
 {
   "name": "client-records-api",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "api/index.js",
   "author": "Matthew",
   "license": "MIT",
   "dependencies": {

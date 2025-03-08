@@ -1,9 +1,8 @@
 const express = require("express");
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 const cors = require("cors");
 require("dotenv").config();
-
 const user_model = require("./userModel");
 const session_model = require("./sessionModel");
 const task_model = require("./taskModel");
@@ -18,6 +17,10 @@ app.use(function (req, res, next) {
     "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
   );
   next();
+});
+
+app.get("/", (req, res) => {
+  res.send("Hello World!");
 });
 
 // USER ROUTES
@@ -94,7 +97,6 @@ app.delete("/:userId/clients/:clientId", (req, res) => {
 });
 
 // SESSION ROUTES
-
 app.post("/sessions/create-session/:clientId", (req, res) => {
   session_model
     .createSession(req.params.clientId, req.body)
@@ -126,6 +128,13 @@ app.delete("/:clientId/sessions/:sessionId", (req, res) => {
 app.put("/:clientId/sessions/:sessionId", (req, res) => {
   session_model
     .updateSession(req.params.sessionId, req.body)
+    .then((response) => res.status(200).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
+app.get("/userId/sessions/unpaid", (req, res) => {
+  session_model
+    .getUnpaidSessions(req.params.userId)
     .then((response) => res.status(200).send(response))
     .catch((error) => res.status(500).send(error));
 });
