@@ -6,7 +6,6 @@ const pool = new Pool({
   database: process.env.POSTGRES_DATABASE,
   password: process.env.POSTGRES_PASSWORD,
 });
-// port: process.env.PORT,
 
 const getTasks = async (req) => {
   try {
