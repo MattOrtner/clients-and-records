@@ -6,8 +6,6 @@ const pool = new Pool({
 
 const signInUser = async (req) => {
   const { email, pass } = req.body;
-  console.log("email: ", email);
-  console.log("pass: ", pass);
 
   try {
     return await new Promise(function (resolve, reject) {
