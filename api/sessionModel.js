@@ -1,9 +1,7 @@
 const Pool = require("pg").Pool;
 const pool = new Pool({
-  user: process.env.POSTGRES_URL,
-  host: process.env.POSTGRES_HOST,
-  database: process.env.POSTGRES_DATABASE,
-  password: process.env.POSTGRES_PASSWORD,
+  connectionString: process.env.POSTGRES_URL,
+  ssl: true,
 });
 
 const getSession = async (sessionId) => {
@@ -33,15 +31,6 @@ const getSession = async (sessionId) => {
 
 const getClientSessions = async ({ userId, clientId }) => {
   try {
-    // CONFIRM CLIENT BELONGS TO USER
-    // const user = await new Promise(function (resolve, reject) {
-    //   pool.query(`SELECT user_id FROM clients WHERE id=${clientId}`);
-    // });
-    // console.log("user", user);
-    // if (user[0].id !== userId) {
-    //   throw new Error("Client does not belong to user");
-    // }
-    // console.log("client", client);
     return await new Promise(function (resolve, reject) {
       pool.query(
         "SELECT * FROM sessions WHERE client_id=$1",
@@ -128,10 +117,33 @@ const updateSession = (sessionId, body) => {
   });
 };
 
+const getUnpaidSessions = (userId) => {
+  console.log("userId", userId);
+  return new Promise(function (resolve, reject) {
+    pool.query(
+      "SELECT * FROM sessions WHERE user_id = $1 AND paid = false",
+      [userId],
+      (error, results) => {
+        if (error) {
+          reject(error);
+        }
+        if (results && results.rows) {
+          console.log("results", results);
+          console.log("results.rows", results.rows);
+          resolve(results.rows);
+        } else {
+          reject(new Error("No results found"));
+        }
+      }
+    );
+  });
+};
+
 module.exports = {
   getSession,
   getClientSessions,
   createSession,
   deleteSession,
   updateSession,
+  getUnpaidSessions,
 };

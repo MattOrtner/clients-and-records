@@ -7,21 +7,29 @@ const user_model = require("./userModel");
 const session_model = require("./sessionModel");
 const task_model = require("./taskModel");
 
-app.use(cors());
-app.use(express.json());
-app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
-  );
-  next();
-});
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "https://clients-and-contacts.vercel.app";
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    const allowedOrigins = [FRONTEND_URL, "http://localhost:3000"];
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: "GET, POST, PUT, DELETE, OPTIONS",
+  allowedHeaders: "Content-Type, Authorization, X-Requested-With",
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+app.options("*", cors(corsOptions));
 
 // USER ROUTES
 app.post("/login", (req, res) => {

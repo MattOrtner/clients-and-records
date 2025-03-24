@@ -1,17 +1,17 @@
 const Pool = require("pg").Pool;
 const pool = new Pool({
-  user: process.env.POSTGRES_URL,
-  host: process.env.POSTGRES_HOST,
-  database: process.env.POSTGRES_DATABASE,
-  password: process.env.POSTGRES_PASSWORD,
+  connectionString: process.env.POSTGRES_URL,
+  ssl: true,
 });
 
 const signInUser = async (req) => {
   const { email, pass } = req.body;
+
   try {
     return await new Promise(function (resolve, reject) {
       pool.query(
         "SELECT email, password, id, first FROM users WHERE email = $1;",
+
         [email],
         (error, results) => {
           if (error) {
@@ -20,7 +20,12 @@ const signInUser = async (req) => {
           }
           const response = results.rows[0];
           if (response.password === pass) {
-            resolve({ status: 200, id: response.id, first: response.first });
+            resolve({
+              status: 200,
+              id: response.id,
+              first: response.first,
+              email: response.email,
+            });
           } else {
             reject(new Error("No results found"));
           }
@@ -28,7 +33,7 @@ const signInUser = async (req) => {
       );
     });
   } catch (error_1) {
-    console.error(error_1);
+    console.error("userModel error: ", error_1);
     throw new Error("Internal server error_1");
   }
 };
