@@ -140,7 +140,7 @@ app.put("/:clientId/sessions/:sessionId", (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
-app.get("/userId/sessions/unpaid", (req, res) => {
+app.get("/:userId/sessions/unpaid", (req, res) => {
   session_model
     .getUnpaidSessions(req.params.userId)
     .then((response) => res.status(200).send(response))
