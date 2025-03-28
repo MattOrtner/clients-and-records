@@ -13,7 +13,7 @@ const getTasks = async (req) => {
     if (results && results.rows) {
       return results.rows;
     } else {
-      throw new Error("No tasks found for the given user ID");
+      return [];
     }
   } catch (error) {
     console.error("error", error);
