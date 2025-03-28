@@ -118,18 +118,20 @@ const updateSession = (sessionId, body) => {
 };
 
 const getUnpaidSessions = (userId) => {
-  console.log("userId", userId);
+  if (!userId) {
+    return Promise.reject(new Error("Undefined userId"));
+  }
   return new Promise(function (resolve, reject) {
     pool.query(
-      "SELECT * FROM sessions WHERE user_id = $1 AND paid = false",
+      `SELECT sessions.id AS session_id, first, last, date, time, client_id FROM sessions
+       INNER JOIN clients ON sessions.client_id = clients.id 
+       WHERE clients.user_id = $1 AND sessions.paid = false`,
       [userId],
       (error, results) => {
         if (error) {
           reject(error);
         }
         if (results && results.rows) {
-          console.log("results", results);
-          console.log("results.rows", results.rows);
           resolve(results.rows);
         } else {
           reject(new Error("No results found"));
