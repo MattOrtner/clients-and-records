@@ -1,7 +1,7 @@
 const Pool = require("pg").Pool;
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
-  ssl: true,
+  // ssl: true,
 });
 
 const getSession = async (sessionId) => {
@@ -134,7 +134,7 @@ const getUnpaidSessions = (userId) => {
         if (results && results.rows) {
           resolve(results.rows);
         } else {
-          reject(new Error("No results found"));
+          reject(console.error("No results found"));
         }
       }
     );
