@@ -1,7 +1,9 @@
+const { comparePassword } = require("./incryption");
+
 const Pool = require("pg").Pool;
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
-  ssl: true,
+  // ssl: true,
 });
 
 const signInUser = async (req) => {
@@ -19,7 +21,8 @@ const signInUser = async (req) => {
             reject(error);
           }
           const response = results.rows[0];
-          if (response.password === pass) {
+          const isMatch = comparePassword(pass, response.password);
+          if (isMatch) {
             resolve({
               status: 200,
               id: response.id,
