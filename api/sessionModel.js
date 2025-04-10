@@ -134,7 +134,7 @@ const getUnpaidSessions = (userId) => {
         if (results && results.rows) {
           resolve(results.rows);
         } else {
-          reject(new Error("No results found"));
+          reject(console.error("No results found"));
         }
       }
     );

@@ -112,24 +112,19 @@ const getClients = async (req) => {
     throw new Error("Internal server error");
   }
 };
-//create a new client record in the databsse
+
 const createClient = (userId, body) => {
   return new Promise(function (resolve, reject) {
-    const { first, last, email, rate, occurrence, phonenumber } = body;
+    const { first, last, email, rate, phonenumber } = body;
     pool.query(
-      "INSERT INTO clients (first, last, email, rate, occurrence, phone_number, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [first, last, email, rate, occurrence, phonenumber, userId],
+      "INSERT INTO clients (first, last, email, rate, phone_number, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [first, last, email, rate, phonenumber, userId],
       (error, results) => {
         if (error) {
           console.log("error createClientAPI: ", error);
           reject(error);
         }
         if (results && results.rows) {
-          // resolve(
-          //   `A new client has been added: ${JSON.stringify(results.rows[0])}`
-          // );
-          // console.log("results.rows[0]: ", results.rows[0]);
-          // return results.rows[0];
           resolve(results.rows[0]);
         } else {
           reject(new Error("No results found"));
@@ -138,7 +133,7 @@ const createClient = (userId, body) => {
     );
   });
 };
-//delete a client
+
 const deleteClient = (params) => {
   const { userId, clientId } = params;
   return new Promise(function (resolve, reject) {
@@ -149,7 +144,7 @@ const deleteClient = (params) => {
         if (error) {
           reject(error);
         }
-        resolve(`Client deleted with ID: ${clientId}`);
+        resolve({ id: clientId, message: "Client deleted successfully" });
       }
     );
   });
