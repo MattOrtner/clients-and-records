@@ -155,6 +155,7 @@ const deleteClient = (params) => {
 
 //update a client record
 const updateClient = (params, body) => {
+  console.log("body", body);
   const fields = [];
   const values = [];
   const clientId = params.clientId;
@@ -168,8 +169,8 @@ const updateClient = (params, body) => {
 
   query +=
     fields.join(", ") +
-    `WHERE id = ${clientId} AND user_id = ${userId} RETURNING *`;
-
+    ` WHERE id = ${clientId} AND user_id = ${userId} RETURNING *`;
+  console.log("query", query);
   return new Promise(function (resolve, reject) {
     pool.query(query, values, (error, results) => {
       if (error) {

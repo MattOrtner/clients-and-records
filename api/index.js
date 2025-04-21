@@ -90,7 +90,7 @@ app.post("/:userId/clients", (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
-app.put("/:userId/clients/:clientId", (req, res) => {
+app.put("/:userId/clients/:clientId/profile/update", (req, res) => {
   user_model
     .updateClient(req.params, req.body)
     .then((response) => res.status(200).send(response))
