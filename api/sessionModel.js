@@ -8,7 +8,7 @@ const getSession = async (sessionId) => {
   try {
     return await new Promise(function (resolve, reject) {
       pool.query(
-        "SELECT * FROM sessions WHERE id=$1",
+        "SELECT sessions.date, sessions.time, sessions.notes, sessions.paid , clients.first, clients.last FROM sessions JOIN clients ON sessions.client_id = clients.id WHERE sessions.id = $1",
         [sessionId],
         (error, results) => {
           if (error) {
