@@ -7,8 +7,7 @@ const user_model = require("./userModel");
 const session_model = require("./sessionModel");
 const task_model = require("./taskModel");
 
-const FRONTEND_URL =
-  process.env.FRONTEND_URL || "https://clients-and-contacts.vercel.app";
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 const corsOptions = {
   origin: function (origin, callback) {
