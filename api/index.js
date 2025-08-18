@@ -31,6 +31,13 @@ app.use(express.json());
 app.options("*", cors(corsOptions));
 
 // USER ROUTES
+app.post("/signup", (req, res) => {
+  user_model
+    .signUpUser(req)
+    .then((response) => res.status(201).send(response))
+    .catch((error) => res.status(500).send(error));
+});
+
 app.post("/login", (req, res) => {
   user_model
     .signInUser(req)
