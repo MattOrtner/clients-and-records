@@ -1,8 +1,9 @@
-const { comparePassword } = require("./incryption");
+const { comparePassword, hashPassword } = require("./incryption");
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
+  // connectionString: process.env.POSTGRES_URL,
+  connectionString: "postgresql://matt:root@localhost:5432/clientsandrecords",
   // ssl: true,
 });
 
@@ -15,13 +16,35 @@ const signInUser = async (req) => {
         "SELECT email, password, id, first FROM users WHERE email = $1;",
 
         [email],
-        (error, results) => {
+        async (error, results) => {
           if (error) {
             console.error("loginQuery callback: ", error);
             reject(error);
+            return;
           }
+
+          // Check if user exists
+          if (!results.rows[0]) {
+            reject({
+              status: 401,
+              message: "Invalid email or password",
+            });
+            return;
+          }
+
           const response = results.rows[0];
-          const isMatch = comparePassword(pass, response.password);
+
+          // Check if password exists in database
+          if (!response.password) {
+            reject({
+              status: 401,
+              message: "Invalid email or password",
+            });
+            return;
+          }
+
+          const isMatch = await comparePassword(pass, response.password);
+          console.log("isMatch", isMatch);
           if (isMatch) {
             resolve({
               status: 200,
@@ -30,7 +53,10 @@ const signInUser = async (req) => {
               email: response.email,
             });
           } else {
-            reject(new Error("No results found"));
+            reject({
+              status: 401,
+              message: "Invalid email or password",
+            });
           }
         }
       );
@@ -38,6 +64,43 @@ const signInUser = async (req) => {
   } catch (error_1) {
     console.error("userModel error: ", error_1);
     throw new Error("Internal server error_1");
+  }
+};
+
+const signUpUser = async (req) => {
+  const { email, password, first } = req.body;
+
+  try {
+    // Hash the password
+    const hashedPassword = await hashPassword(password);
+
+    return await new Promise(function (resolve, reject) {
+      pool.query(
+        "INSERT INTO users (email, password, first) VALUES ($1, $2, $3) RETURNING id, email, first",
+        [email, hashedPassword, first],
+        (error, results) => {
+          if (error) {
+            console.error("signUpUser error: ", error);
+            reject(error);
+            return;
+          }
+
+          if (results && results.rows) {
+            resolve({
+              status: 201,
+              id: results.rows[0].id,
+              first: results.rows[0].first,
+              email: results.rows[0].email,
+            });
+          } else {
+            reject(new Error("Failed to create user"));
+          }
+        }
+      );
+    });
+  } catch (error) {
+    console.error("signUpUser error: ", error);
+    throw new Error("Internal server error");
   }
 };
 
@@ -99,7 +162,7 @@ const getClients = async (req) => {
         `SELECT first,last,id FROM clients WHERE user_id=${req.params.userId}`,
         (error, results) => {
           if (error) {
-            console.error("error", error);
+            console.error("error getClients", error);
             reject(error);
           }
           if (results && results.rows) {
@@ -186,6 +249,7 @@ const updateClient = (params, body) => {
 
 module.exports = {
   signInUser,
+  signUpUser,
   getClient,
   getClientProfile,
   getClients,
