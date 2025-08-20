@@ -7,7 +7,7 @@
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://clients-and-contacts.vercel.app "
+          "value": "https://leaf-new.vercel.app"
         },
         {
           "key": "Access-Control-Allow-Methods",
