@@ -2,68 +2,44 @@ const { comparePassword, hashPassword } = require("./incryption");
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
-  // connectionString: process.env.POSTGRES_URL,
-  connectionString: "postgresql://matt:root@localhost:5432/clientsandrecords",
-  // ssl: true,
+  connectionString: process.env.POSTGRES_URL,
+  ssl: true,
 });
-
 const signInUser = async (req) => {
   const { email, pass } = req.body;
 
   try {
-    return await new Promise(function (resolve, reject) {
-      pool.query(
-        "SELECT email, password, id, first FROM users WHERE email = $1;",
+    const { rows } = await pool.query(
+      "SELECT email, password, id, first FROM users WHERE email = $1;",
+      [email]
+    );
 
-        [email],
-        async (error, results) => {
-          if (error) {
-            console.error("loginQuery callback: ", error);
-            reject(error);
-            return;
-          }
+    if (!rows[0]) {
+      return { status: 401, message: "Invalid email or password" };
+    }
 
-          // Check if user exists
-          if (!results.rows[0]) {
-            reject({
-              status: 401,
-              message: "Invalid email or password",
-            });
-            return;
-          }
+    const response = rows[0];
 
-          const response = results.rows[0];
+    if (!response.password) {
+      return { status: 401, message: "Invalid email or password" };
+    }
 
-          // Check if password exists in database
-          if (!response.password) {
-            reject({
-              status: 401,
-              message: "Invalid email or password",
-            });
-            return;
-          }
+    const isMatch = await comparePassword(pass, response.password);
+    console.log("isMatch", isMatch);
 
-          const isMatch = await comparePassword(pass, response.password);
-          console.log("isMatch", isMatch);
-          if (isMatch) {
-            resolve({
-              status: 200,
-              id: response.id,
-              first: response.first,
-              email: response.email,
-            });
-          } else {
-            reject({
-              status: 401,
-              message: "Invalid email or password",
-            });
-          }
-        }
-      );
-    });
-  } catch (error_1) {
-    console.error("userModel error: ", error_1);
-    throw new Error("Internal server error_1");
+    if (!isMatch) {
+      return { status: 401, message: "Invalid email or password" };
+    }
+
+    return {
+      status: 200,
+      id: response.id,
+      first: response.first,
+      email: response.email,
+    };
+  } catch (err) {
+    console.error("userModel error: ", err);
+    throw new Error("Internal server error");
   }
 };
 
@@ -72,8 +48,8 @@ const signUpUser = async (req) => {
 
   try {
     // Hash the password
-    const hashedPassword = await hashPassword(password);
-
+    const hashedPassword = await hashPassword("default@mail.com");
+    console.log(hashedPassword);
     return await new Promise(function (resolve, reject) {
       pool.query(
         "INSERT INTO users (email, password, first) VALUES ($1, $2, $3) RETURNING id, email, first",
@@ -256,4 +232,5 @@ module.exports = {
   createClient,
   deleteClient,
   updateClient,
+  pool,
 };

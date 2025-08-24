@@ -153,6 +153,6 @@ app.get("/:userId/sessions/unpaid", (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
-// app.listen(port, () => {
-//   console.log(`App running on port ${port}.`);
-// });
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});
