@@ -38,11 +38,15 @@ app.post("/signup", (req, res) => {
     .catch((error) => res.status(500).send(error));
 });
 
-app.post("/login", (req, res) => {
-  user_model
-    .signInUser(req)
-    .then((response) => res.status(200).send(response))
-    .catch((error) => res.status(500).send(error));
+app.post("/login", async (req, res) => {
+  try {
+    const response = await user_model.signInUser(req);
+    res.status(response.status || 200).json(response);
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || "Internal server error";
+    res.status(status).json({ error: message });
+  }
 });
 
 // TODOS ROUTES

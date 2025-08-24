@@ -46,36 +46,30 @@ const signInUser = async (req) => {
 const signUpUser = async (req) => {
   const { email, password, first } = req.body;
 
+  console.log("signUpUser called with:", email, first);
+
   try {
     // Hash the password
-    const hashedPassword = await hashPassword("default@mail.com");
-    console.log(hashedPassword);
-    return await new Promise(function (resolve, reject) {
-      pool.query(
-        "INSERT INTO users (email, password, first) VALUES ($1, $2, $3) RETURNING id, email, first",
-        [email, hashedPassword, first],
-        (error, results) => {
-          if (error) {
-            console.error("signUpUser error: ", error);
-            reject(error);
-            return;
-          }
+    const hashedPassword = await hashPassword(password);
 
-          if (results && results.rows) {
-            resolve({
-              status: 201,
-              id: results.rows[0].id,
-              first: results.rows[0].first,
-              email: results.rows[0].email,
-            });
-          } else {
-            reject(new Error("Failed to create user"));
-          }
-        }
-      );
-    });
+    // Insert user into database
+    const { rows } = await pool.query(
+      "INSERT INTO users (email, password, first) VALUES ($1, $2, $3) RETURNING id, email, first",
+      [email, hashedPassword, first]
+    );
+
+    if (!rows[0]) {
+      throw new Error("Failed to create user");
+    }
+
+    return {
+      status: 201,
+      id: rows[0].id,
+      first: rows[0].first,
+      email: rows[0].email,
+    };
   } catch (error) {
-    console.error("signUpUser error: ", error);
+    console.error("signUpUser error:", error);
     throw new Error("Internal server error");
   }
 };
