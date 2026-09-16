@@ -1,8 +1,4 @@
-const Pool = require("pg").Pool;
-const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
-  ssl: true,
-});
+const pool = require("./db");
 
 const getSession = async (sessionId) => {
   try {
@@ -20,7 +16,7 @@ const getSession = async (sessionId) => {
           } else {
             reject(new Error("No results found"));
           }
-        }
+        },
       );
     });
   } catch (error_1) {
@@ -45,7 +41,7 @@ const getClientSessions = async ({ userId, clientId }) => {
           } else {
             reject(new Error("No results found"));
           }
-        }
+        },
       );
     });
   } catch (error_1) {
@@ -70,7 +66,7 @@ const createSession = (clientId, body) => {
         } else {
           reject(new Error("No results found"));
         }
-      }
+      },
     );
   });
 };
@@ -85,7 +81,7 @@ const deleteSession = (sessionId) => {
           reject(error);
         }
         resolve(`Session deleted with ID: ${sessionId}`);
-      }
+      },
     );
   });
 };
@@ -136,7 +132,7 @@ const getUnpaidSessions = (userId) => {
         } else {
           reject(console.error("No results found"));
         }
-      }
+      },
     );
   });
 };

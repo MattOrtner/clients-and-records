@@ -1,17 +1,13 @@
 const { comparePassword, hashPassword } = require("./incryption");
+const pool = require("./db");
 
-const Pool = require("pg").Pool;
-const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
-  ssl: true,
-});
 const signInUser = async (req) => {
   const { email, pass } = req.body;
 
   try {
     const { rows } = await pool.query(
       "SELECT email, password, id, first FROM users WHERE email = $1;",
-      [email]
+      [email],
     );
 
     if (!rows[0]) {
@@ -25,8 +21,6 @@ const signInUser = async (req) => {
     }
 
     const isMatch = await comparePassword(pass, response.password);
-    console.log("isMatch", isMatch);
-
     if (!isMatch) {
       return { status: 401, message: "Invalid email or password" };
     }
@@ -55,7 +49,7 @@ const signUpUser = async (req) => {
     // Insert user into database
     const { rows } = await pool.query(
       "INSERT INTO users (email, password, first) VALUES ($1, $2, $3) RETURNING id, email, first",
-      [email, hashedPassword, first]
+      [email, hashedPassword, first],
     );
 
     if (!rows[0]) {
@@ -90,7 +84,7 @@ const getClient = async (req) => {
           } else {
             reject(new Error("No results found"));
           }
-        }
+        },
       );
     });
   } catch (error_1) {
@@ -116,7 +110,7 @@ const getClientProfile = async (req) => {
           } else {
             reject(new Error("No results found"));
           }
-        }
+        },
       );
     });
   } catch (error_1) {
@@ -140,7 +134,7 @@ const getClients = async (req) => {
           } else {
             reject(new Error("No results found"));
           }
-        }
+        },
       );
     });
   } catch (error_1) {
@@ -165,7 +159,7 @@ const createClient = (userId, body) => {
         } else {
           reject(new Error("No results found"));
         }
-      }
+      },
     );
   });
 };
@@ -181,7 +175,7 @@ const deleteClient = (params) => {
           reject(error);
         }
         resolve({ id: clientId, message: "Client deleted successfully" });
-      }
+      },
     );
   });
 };
